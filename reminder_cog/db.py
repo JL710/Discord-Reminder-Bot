@@ -3,6 +3,8 @@ from pathlib import Path
 import os
 
 
+# !Category
+
 def create_category(user_id: int, guild_id: int, name: str):
     db = sql3.connect("database.db")
     db.execute("INSERT INTO Categorys (UserID, GuildID, Name) VALUES (?, ?, ?)", (user_id, guild_id, name))
@@ -47,6 +49,62 @@ def set_user_categorys(categorys: list, user_id: int):
     db.close()
 
 
+def get_users(category_id: int):
+    """ID, UserID, CategoryID"""
+    db = sql3.connect("database.db")
+    users = db.execute("SELECT ID, UserID, CategoryID FROM CategoryUsers WHERE CategoryID=?", (category_id,)).fetchall()
+    db.close()
+    return users
+
+# !Reminder
+
+def create_reminder(timestamp: int, user_id: int, category_id: int, message: str):
+    db = sql3.connect("database.db")
+    db.execute("INSERT INTO Reminders (CategoryID, UserID, TimeStamp, Message) VALUES (?, ?, ?, ?)", (category_id, user_id, timestamp, message))
+    db.commit()
+    db.close()
+
+def get_reminders(category_id: int) -> list:
+    """ID, UserID, TimeStamp, Message, category_id"""
+    db = sql3.connect("database.db")
+    result = db.execute("SELECT ID, UserID, TimeStamp, Message FROM Reminders WHERE CategoryID=?", (category_id,)).fetchall()
+    db.close()
+    return [r + (category_id,) for r in result]
+
+def get_reminders_for_reminding(timestamp: int):
+    """ID, UserID, TimeStamp, CategoryID, Message"""
+    db = sql3.connect("database.db")
+    result = db.execute("SELECT ID, UserID, TimeStamp, CategoryID, Message FROM Reminders WHERE TimeStamp<=?", (timestamp,)).fetchall()
+    db.close()
+    return result
+
+def get_reminder(id: int):
+    """ID, UserID, TimeStamp, CategoryID, Message"""
+    db = sql3.connect("database.db")
+    result = db.execute("SELECT ID, UserID, TimeStamp, CategoryID, Message FROM Reminders WHERE ID=?", (id,)).fetchone()
+    db.close()
+    return result
+
+def reminder_exist(id: int) -> bool:
+    db = sql3.connect("database.db")
+    result = db.execute("SELECT * FROM Reminders WHERE ID=?", (id,)).fetchall()
+    db.close()
+    return len(result) != 0
+
+def delete_reminder(id):
+    db = sql3.connect("database.db")
+    db.execute("DELETE FROM Reminders WHERE ID=?", (id,))
+    db.commit()
+    db.close()
+
+def get_guild(reminder_id):
+    db = sql3.connect("database.db")
+    result = db.execute("SELECT GuildID FROM Categorys WHERE ID=?", (reminder_id,)).fetchone()
+    db.close()
+    return result[0]
+
+# !Main Stuff
+
 if __name__ == "__main__":
     if Path("database.db").exists():
         os.remove("database.db")
@@ -56,8 +114,8 @@ if __name__ == "__main__":
     CREATE TABLE Reminders (
         ID INTEGER NOT NULL UNIQUE,
         UserID INTEGER NOT NULL,
-        GuildID INTEGER NOT NULL,
         TimeStamp INTEGER NOT NULL,
+        CategoryID INTEGER NOT NULL,
         Message TEXT NOT NULL,
 	    PRIMARY KEY("id" AUTOINCREMENT)
     )
