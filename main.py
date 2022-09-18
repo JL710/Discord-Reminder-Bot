@@ -15,8 +15,7 @@ class Bot(discord.Bot):
         intents = discord.Intents.all()
         super().__init__(
             intents=intents,
-            owner_id=398440299627544577,
-            debug_guilds=[883284695205412874]
+            owner_id=39844029962754457
         )
 
         self.load_extension("reminder_cog")
