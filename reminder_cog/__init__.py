@@ -110,7 +110,6 @@ class ReminderCog(commands.Cog):
 
     @tasks.loop(seconds=10)
     async def check_and_remind(self):
-        print("\ncheck remind")
         now = time.time()
 
         # get reminders
@@ -118,12 +117,14 @@ class ReminderCog(commands.Cog):
 
         for reminder in reminders:
             users = db.get_users(reminder[3])
+            embed = discord.Embed(title="Reminder", description=reminder[4])
+            embed.add_field(name="Author", value=f"<@{reminder[1]}>")
             for user in users:
                 user_object = self.bot.get_user(user[1])
                 if user_object:
                     channel = await user_object.create_dm()
                     try:
-                        await channel.send(embed=discord.Embed(title="Reminder", description=reminder[4]))
+                        await channel.send(embed=embed)
                     except discord.Forbidden:
                         print("forbidden") # TODO: delete user from table
 
