@@ -1,6 +1,9 @@
 # virtual environment
 env
 
+# database
+*.db
+
 # bot token
 token.txt
 
