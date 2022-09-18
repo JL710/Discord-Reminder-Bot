@@ -82,7 +82,7 @@ class ReminderCog(commands.Cog):
         for reminder in reminders:
             embed = discord.Embed(title="Reminder", description=reminder[3])
             embed.add_field(name="Creator", value=f"<@{reminder[1]}>")
-            embed.add_field(name="Zeit", value=f"<t:{reminder[2]}>")
+            embed.add_field(name="Time", value=f"<t:{reminder[2]}>")
             embed.add_field(name="Category", value=f"[{reminder[4]}] {categorys[reminder[4]][2]}")
             embed.add_field(name="ID", value=f"{reminder[0]}")
             embeds.append(embed)
