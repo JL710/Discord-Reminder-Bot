@@ -28,7 +28,7 @@ class ReminderCog(commands.Cog):
         await ctx.respond(embed=discord.Embed(title="Successfully created!", color=self.bot.success_color), ephemeral=True)
 
     @commands.slash_command(name="categorys", description="Shows all available categories and lets you choose them.")
-    async def select_category(self, ctx: discord.ApplicationContext):
+    async def select_category(self, ctx: discord.ApplicationContext):  # TODO: lock category
         categorys = db.get_categorys(ctx.guild_id)
         owned_categorys = db.get_owned_category(ctx.user.id)
         if len(categorys) <= 0:
@@ -75,6 +75,9 @@ class ReminderCog(commands.Cog):
         if len(reminders) <= 0:
             await ctx.respond(embed=discord.Embed(title="No reminder exist!", color=self.bot.error_color), ephemeral=True)
             return
+
+        # sort reminders by timestamp
+        reminders.sort(key=lambda x: x[2])
 
         # create embeds
         categorys = {x[0]: x[1:4] for x in categorys}

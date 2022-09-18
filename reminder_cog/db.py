@@ -19,14 +19,17 @@ def category_exists(category_id: int) -> bool:
     return len(result) != 0
 
 
-def delete_category(category_id: int):  # TODO: delete connected reminders as well
+def delete_category(category_id: int):
     db = sql3.connect("database.db")
     db.execute("DELETE FROM Categorys WHERE ID=?", (category_id,))
+    db.execute("DELETE FROM Reminders WHERE CategoryID=?", (category_id,))
+    db.execute("DELETE FROM CategoryUsers WHERE CategoryID=?", (category_id,))
     db.commit()
     db.close()
 
 
 def get_categorys(guild_id: int) -> list:
+    """ID, UserID, GuildID, Name"""
     db = sql3.connect("database.db")
     result = db.execute("SELECT ID, UserID, GuildID, Name FROM Categorys WHERE GuildID=?", (guild_id,)).fetchall()
     db.close()
@@ -64,10 +67,11 @@ def create_reminder(timestamp: int, user_id: int, category_id: int, message: str
     db.commit()
     db.close()
 
-def get_reminders(category_id: int) -> list:  # TODO: sort by TimeStamp
+def get_reminders(category_id: int) -> list:
     """ID, UserID, TimeStamp, Message, category_id"""
     db = sql3.connect("database.db")
     result = db.execute("SELECT ID, UserID, TimeStamp, Message FROM Reminders WHERE CategoryID=?", (category_id,)).fetchall()
+    print(result)
     db.close()
     return [r + (category_id,) for r in result]
 
