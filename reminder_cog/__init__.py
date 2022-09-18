@@ -17,17 +17,17 @@ class ReminderCog(commands.Cog):
     async def on_ready(self):
         self.check_and_remind.start()
 
-    @commands.slash_command(name="create_category", description="create a category")
+    @commands.slash_command(name="create_category", description="This will create a new category.")
     @commands.has_permissions(administrator=True)
     async def create_category(self, ctx: discord.ApplicationContext, name: discord.Option(str, max_length=50)):
         if len(db.get_categorys(ctx.guild_id)) >=25:
-            await ctx.respond(embed=discord.Embed(title="Maximum amount of Categorys exist!", color=self.bot.error_color), ephemeral=True)
+            await ctx.respond(embed=discord.Embed(title="Maximum amount of categorys exist!", color=self.bot.error_color), ephemeral=True)
             return
         
         db.create_category(ctx.user.id, ctx.guild_id, name)
         await ctx.respond(embed=discord.Embed(title="Successfully created!", color=self.bot.success_color), ephemeral=True)
 
-    @commands.slash_command(name="categorys", description="shows categorys and lets you choose if you want to get remembered")
+    @commands.slash_command(name="categorys", description="Shows all available categories and lets you choose them.")
     async def select_category(self, ctx: discord.ApplicationContext):
         categorys = db.get_categorys(ctx.guild_id)
         owned_categorys = db.get_owned_category(ctx.user.id)
@@ -37,7 +37,7 @@ class ReminderCog(commands.Cog):
 
         await ctx.respond(view=discord.ui.View(views_stuff.SelectCategorySelect(self.bot, categorys, owned_categorys)), ephemeral=True)
 
-    @commands.slash_command(name="delete_category", description="deletes a category")
+    @commands.slash_command(name="delete_category", description="Deletes a category and all related reminders.")
     @commands.has_permissions(administrator=True)
     async def delete_category(self, ctx: discord.ApplicationContext, category_id: int):
         if not db.category_exists(category_id):
@@ -47,7 +47,7 @@ class ReminderCog(commands.Cog):
         db.delete_category(category_id)
         await ctx.respond(embed=discord.Embed(title="Successfully deleted!", color=self.bot.success_color), ephemeral=True)
     
-    @commands.slash_command(name="create", description="creates a reminder")
+    @commands.slash_command(name="create", description="Creates a new reminder.")
     async def create(self, ctx: discord.ApplicationContext,
             year: discord.Option(int, min_value=2000), # need to be above x to not crash the timestamp
             month: discord.Option(int, min_value=1, max_value=12),
@@ -63,7 +63,7 @@ class ReminderCog(commands.Cog):
         point_in_time = datetime.datetime(year, month, day, hour)
         await ctx.respond("Choose a Category for the Reminder.", view=discord.ui.View(views_stuff.SelectCategoryForReminderSelect(self.bot, ctx.guild_id, point_in_time, message)), ephemeral=True)
     
-    @commands.slash_command(name="reminders", description="lists reminders")
+    @commands.slash_command(name="reminders", description="Lists all available reminders.")
     async def reminders(self, ctx: discord.ApplicationContext):
         # get the reminders
         reminders = []
@@ -91,7 +91,7 @@ class ReminderCog(commands.Cog):
         paginator = pages.Paginator(pages=embeds)
         await paginator.respond(ctx.interaction, ephemeral=True)
 
-    @commands.slash_command(name="delete", description="deletes a reminder")
+    @commands.slash_command(name="delete", description="Deletes a reminder.")
     async def delete(self, ctx: discord.ApplicationContext, reminder_id: int):
         # check if reminder exists
         if not db.reminder_exist(reminder_id):
