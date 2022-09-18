@@ -23,11 +23,17 @@ class SelectCategoryForReminderSelect(discord.ui.Select):
         self.bot = bot
         self.__date = date
         self.__message = message
+        self.__active: bool = True
 
         options = [discord.SelectOption(label=f"[{x[0]}] {x[3]}", value=str(x[0])) for x in db.get_categorys(guild_id)]
         super().__init__(options=options)
 
     async def callback(self, interaction: discord.Interaction):
+        if not self.__active:
+            await interaction.response.send_message(embed=discord.Embed(title="Already created!", color=self.bot.error_color), ephemeral=True)
+            await interaction.response.defer()
+            return
+        self.__active = False
         db.create_reminder(self.__date.timestamp(), interaction.user.id, int(self.values[0]) , self.__message)
-        await interaction.response.send_message(embed=discord.Embed(title="Successfully Created!", color=self.bot.success_color), ephemeral=True)
+        await interaction.response.send_message(embed=discord.Embed(title="Successfully created!", color=self.bot.success_color), ephemeral=True)
 
