@@ -110,6 +110,19 @@ class ReminderCog(commands.Cog):
         db.delete_reminder(reminder_id)
         await ctx.respond(embed=discord.Embed(title="Successfully deleted!", color=self.bot.success_color), ephemeral=True)
 
+    @commands.slash_command(name="edit", description="Edit a Reminder")
+    async def edit_command(self, ctx: discord.ApplicationContext, reminder_id: discord.Option(int)):
+        # check if reminder exists
+        if not db.reminder_exist(reminder_id):
+            await ctx.respond(embed=discord.Embed(title="Reminder does not exist!", color=self.bot.error_color), ephemeral=True)
+            return
+
+        # check if user is owner of the reminder or has admin perms
+        if ctx.user.id != db.get_reminder(reminder_id)[3] and not ctx.user.guild_permissions.administrator:
+            await ctx.respond(embed=discord.Embed(title="No Permission!", color=self.bot.error_color), ephemeral=True)
+            return
+        
+        await ctx.response.send_modal(modal=views_stuff.EditModal(reminder_id))
 
     @tasks.loop(seconds=10)
     async def check_and_remind(self):
