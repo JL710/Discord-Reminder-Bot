@@ -101,6 +101,12 @@ def delete_reminder(id):
     db.commit()
     db.close()
 
+def update_reminder(id, timestamp: int, message: str):
+    db = sql3.connect("database.db")
+    db.execute("UPDATE Reminders SET TimeStamp=?, Message=? WHERE ID=?", (timestamp, message, id))
+    db.commit()
+    db.close()
+
 def get_guild(reminder_id):
     db = sql3.connect("database.db")
     result = db.execute("SELECT GuildID FROM Categorys WHERE ID=?", (reminder_id,)).fetchone()
